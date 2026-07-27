@@ -12,8 +12,8 @@ export default function Home() {
         </div>
 
         {/* Main content */}
-        <div className="flex w-full  justify-center p-4 sm:p-6 md:p-8">
-          <div className="w-full max-w-xl space-y-5 rounded-lg border border-[#E4E4E7] p-4 sm:p-6">
+        <div className="flex w-full justify-center pt-10 bg-slate-50">
+          <div className="w-full max-w-xl space-y-5 rounded-lg border border-[#E4E4E7] p-4 bg-white">
             <Article
               name="Article Quiz Generator"
               description="Paste your article below to generate a summarize and quiz question. Your articles will saved in the sidebar for future reference."
