@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+
+
+model User {
+  id          String    @id @default(cuid())
+  clerkId     String    @unique
+  email       String    @unique
+  name        String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  articles      Article[]
+  quizAttempts  QuizAttempt[]
+}
+
+model Article {
+  id         String    @id @default(cuid())
+  title      String
+  content    String
+  summary    String
+  userId     String
+  user       User      @relation(fields: [userId], references: [id])
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  quizzes    Quiz[]
+}
+
+model Quiz {
+  id         String    @id @default(cuid())
+  articleId  String
+  article    Article   @relation(fields: [articleId], references: [id])
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  questions     Question[]
+  quizAttempts  QuizAttempt[]
+}
+
+// Quiz бүр хамгийн ихдээ 5 асуулттай — тиймээс тусдаа хүснэгт хэрэгтэй
+model Question {
+  id             String   @id @default(cuid())
+  quizId         String
+  quiz           Quiz     @relation(fields: [quizId], references: [id])
+  question       String
+  options        String[] // 4 сонголт жишээ нь
+  correctAnswer  String   // зөв хариулт (эсвэл index)
+  createdAt      DateTime @default(now())
+
+  answers        QuizAnswer[]
+}
+
+// Хэрэглэгч quiz нэг удаа өгөх бүрд нэг attempt үүснэ
+model QuizAttempt {
+  id          String   @id @default(cuid())
+  quizId      String
+  quiz        Quiz     @relation(fields: [quizId], references: [id])
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  score       Int      // зөв хариулсан тоо
+  totalCount  Int      // нийт асуултын тоо (max 5)
+  createdAt   DateTime @default(now())
+
+  answers     QuizAnswer[]
+}
+
+// Attempt тус бүрийн асуулт бүрд хэрэглэгчийн өгсөн хариулт
+model QuizAnswer {
+  id             String       @id @default(cuid())
+  attemptId      String
+  attempt        QuizAttempt  @relation(fields: [attemptId], references: [id])
+  questionId     String
+  question       Question     @relation(fields: [questionId], references: [id])
+  userAnswer     String
+  isCorrect      Boolean
+}

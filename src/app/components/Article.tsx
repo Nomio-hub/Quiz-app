@@ -2,7 +2,7 @@ import React from "react";
 
 interface ArticleProps {
   name: string;
-  description: string;
+  description?: string;
 }
 
 export const Article = ({ name, description }: ArticleProps) => {

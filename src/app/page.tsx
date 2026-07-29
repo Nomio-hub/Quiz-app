@@ -1,9 +1,35 @@
+"use client";
 import Image from "next/image";
 import { Input } from "@/src/components/ui/input";
 import { SideBar } from "./components/SideBar";
 import { Article } from "./components/Article";
+import axios from "axios";
+import { useState } from "react";
 
 export default function Home() {
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [summery, setSummery] = useState("");
+
+  const handleTitle = (e: any) => {
+    const { value } = e.target;
+    setTitle(value);
+  };
+
+  const handleContent = (e: any) => {
+    const { value } = e.target;
+    setContent(value);
+  };
+
+  const summerizeArticle = async () => {
+    const response = await axios.post("/api/article", {
+      title,
+      content,
+    });
+    console.log("response", response);
+    setSummery(response.data.summery);
+  };
+
   return (
     <div className="min-h-screen w-full">
       <div className="flex min-h-screen w-full flex-col md:flex-row">
@@ -35,7 +61,10 @@ export default function Home() {
                 </svg>
                 <p>Article Title</p>
               </div>
-              <Input placeholder="Enter a title for your article..." />
+              <Input
+                onChange={handleTitle}
+                placeholder="Enter a title for your article..."
+              />
             </div>
 
             <div className="space-y-2">
@@ -54,13 +83,20 @@ export default function Home() {
                 </svg>
                 <p>Article Content</p>
               </div>
-              <Input placeholder="Please your article content here..." />
+              <Input
+                onChange={handleContent}
+                placeholder="Please your article content here..."
+              />
             </div>
             <div className="flex justify-end ">
-              <button className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-white opacity-20 sm:w-auto">
+              <button
+                onClick={summerizeArticle}
+                className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-white opacity-20 sm:w-auto"
+              >
                 Generate summary
               </button>
             </div>
+            <p>{summery}</p>
           </div>
         </div>
       </div>
