@@ -1,17 +1,13 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
-const HISTORY_ITEMS = [
-  "Genghis Khan",
-  "Figma ашиглах заавар",
-  "Санхүүгийн шийдвэрүүд",
-  "Figma-д загвар зохион бүтээх аргачлалууд",
-  "Санхүүгийн технологи 2023",
-  "Хэрэглэгчийн интерфейс дизайны шилдэг туршлага",
-  "Архитектур загварчлалын хэтэлбэрүүд",
-  "Эрүүл амьдралын хэв маяг",
-  "Технологийн салбарт хийгдэж буй инновац",
-];
+type ArticleItem = {
+  id: string;
+  title: string;
+  createdAt: string;
+};
 
 function ToggleIcon() {
   return (
@@ -34,6 +30,26 @@ function ToggleIcon() {
 
 export const SideBar = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [articles, setArticles] = useState<ArticleItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const response = await axios.get("/api/article");
+        setArticles(response.data.articles);
+      } catch (error) {
+        console.error("Failed to fetch articles", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArticles();
+  }, []);
+
   return (
     <div className="flex h-full border-r border-[#E4E4E7]">
       <div className="flex h-full flex-col">
@@ -55,12 +71,19 @@ export const SideBar = () => {
           }`}
         >
           <div className="w-64 space-y-4 overflow-y-auto px-4 pb-4 text-sm text-[#3F3F46]">
-            {HISTORY_ITEMS.map((item) => (
+            {loading && <p className="text-[#A1A1AA]">Уншиж байна...</p>}
+
+            {!loading && articles.length === 0 && (
+              <p className="text-[#A1A1AA]">Түүх хоосон байна</p>
+            )}
+
+            {articles.map((article) => (
               <p
-                key={item}
+                key={article.id}
                 className="cursor-pointer leading-snug hover:text-black"
+                onClick={() => router.push(`/summary?id=${article.id}`)}
               >
-                {item}
+                {article.title}
               </p>
             ))}
           </div>

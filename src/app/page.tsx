@@ -1,34 +1,43 @@
 "use client";
-import Image from "next/image";
 import { Input } from "@/src/components/ui/input";
+import { Textarea } from "@/src/components/ui/textarea";
 import { SideBar } from "./components/SideBar";
 import { Article } from "./components/Article";
 import axios from "axios";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [summery, setSummery] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleTitle = (e: any) => {
-    const { value } = e.target;
-    setTitle(value);
-  };
-
-  const handleContent = (e: any) => {
-    const { value } = e.target;
-    setContent(value);
-  };
+  const handleTitle = (e: any) => setTitle(e.target.value);
+  const handleContent = (e: any) => setContent(e.target.value);
 
   const summerizeArticle = async () => {
-    const response = await axios.post("/api/article", {
-      title,
-      content,
-    });
-    console.log("response", response);
-    setSummery(response.data.summery);
+    if (!title.trim() || !content.trim()) return;
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await axios.post("/api/article", { title, content });
+      const articleId = response.data.article?.id;
+      if (articleId) {
+        router.push(`/summary?id=${articleId}`);
+      }
+    } catch (err) {
+      console.error("Failed to summarize article", err);
+      setError("Алдаа гарлаа. Дахин оролдоно уу.");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const isDisabled = loading || !title.trim() || !content.trim();
 
   return (
     <div className="min-h-screen w-full">
@@ -37,7 +46,6 @@ export default function Home() {
           <SideBar />
         </div>
 
-        {/* Main content */}
         <div className="flex w-full justify-center pt-10 bg-slate-50">
           <div className="w-full max-w-xl space-y-5 rounded-lg border border-[#E4E4E7] p-4 bg-white">
             <Article
@@ -83,20 +91,23 @@ export default function Home() {
                 </svg>
                 <p>Article Content</p>
               </div>
-              <Input
+              <Textarea
                 onChange={handleContent}
-                placeholder="Please your article content here..."
+                placeholder="Please paste your article content here..."
               />
             </div>
-            <div className="flex justify-end ">
+
+            {error && <p className="text-sm text-red-500">{error}</p>}
+
+            <div className="flex justify-end">
               <button
                 onClick={summerizeArticle}
-                className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-white opacity-20 sm:w-auto"
+                disabled={isDisabled}
+                className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition-opacity disabled:opacity-40 sm:w-auto"
               >
-                Generate summary
+                {loading ? "Generating..." : "Generate summary"}
               </button>
             </div>
-            <p>{summery}</p>
           </div>
         </div>
       </div>
