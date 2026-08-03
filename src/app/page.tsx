@@ -1,11 +1,12 @@
 "use client";
 import { Input } from "@/src/components/ui/input";
-import { Textarea } from "@/src/components/ui/textarea";
+
 import { SideBar } from "./components/SideBar";
 import { Article } from "./components/Article";
 import axios from "axios";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function Home() {
   const router = useRouter();
